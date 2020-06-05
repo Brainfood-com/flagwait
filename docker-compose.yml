@@ -27,6 +27,7 @@ services:
       - mysql-root-password
       - restic-password
     volumes:
+      - /root/.cache/restic
       - wordpress:/var/www/html
       - flags:/var/run/bfflags
 
