@@ -1,5 +1,6 @@
 #!/bin/sh
 #mysql 
+set -e
 echo "Restoring database..."
 
 while ! mysqladmin ping -h $MYSQL_HOST --silent; do
