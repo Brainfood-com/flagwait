@@ -10,8 +10,7 @@ ls /run/secrets
 
 restic dump \
   -p /run/secrets/restic-password \
-  -H $RESTIC_HOST \
-  -r $RESTIC_URL
+  -H $RESTIC_HOST
 
 echo "Restore complete"
 touch /var/run/bfflags/loaded

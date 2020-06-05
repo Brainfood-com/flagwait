@@ -17,7 +17,7 @@ services:
       MYSQL_HOST: mariadb
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      RESTIC_URL: ${RESTIC_URL}
+      RESTIC_REPOSITORY:
     links:
       - mariadb
     secrets:
