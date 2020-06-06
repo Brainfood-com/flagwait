@@ -1,5 +1,11 @@
 version: '3.8'
 
+networks:
+  nginx:
+    external:
+      name: nginx
+  app:
+
 volumes:
   wordpress:
     name: ${PREFIX}-wordpress
@@ -7,6 +13,8 @@ volumes:
     name: ${PREFIX}-db
   flags:
     name: ${PREFIX}-flags
+  restic:
+    name: ${PREFIX}-restic
 
 services:
   setup:
@@ -17,9 +25,11 @@ services:
       MYSQL_HOST: mariadb
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql-password
       RESTIC_REPOSITORY:
-    links:
-      - mariadb
+      RESTIC_HOST:
+    networks:
+      app:
     secrets:
       - aws-access-key-id
       - aws-secret-access-key
@@ -27,7 +37,7 @@ services:
       - mysql-root-password
       - restic-password
     volumes:
-      - /root/.cache/restic
+      - restic:/root/.cache/restic
       - wordpress:/var/www/html
       - flags:/var/run/bfflags
 
@@ -41,6 +51,8 @@ services:
     secrets:
       - mysql-password
       - mysql-root-password
+    networks:
+      app:
     volumes:
       - database:/var/lib/mysql
 
@@ -56,6 +68,8 @@ services:
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/mysql-password
     secrets:
       - mysql-password
+    networks:
+      app:
     volumes:
       - ./setup/flagwait.sh:/usr/local/bin/flagwait.sh
       - wordpress:/var/www/html
@@ -72,6 +86,9 @@ services:
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/mysql-password
+    networks:
+      nginx:
+      app:
     secrets:
       - mysql-password
     volumes:
