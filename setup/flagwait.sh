@@ -2,8 +2,6 @@
 
 FINISHED=false
 
-echo "check $@"
-
 until [ $FINISHED == true ]
 do
   FLAGCHECK=true

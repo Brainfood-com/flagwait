@@ -9,6 +9,8 @@ networks:
 volumes:
   wordpress:
     name: ${PREFIX}-wordpress
+  wordpress-conf:
+    name: ${PREFIX}-wordpress-conf
   database:
     name: ${PREFIX}-db
   flags:
@@ -37,8 +39,10 @@ services:
       - mysql-root-password
       - restic-password
     volumes:
+      - ./parts/restore-db.sh:/srv/bfsetup/parts/restore-db.sh
       - restic:/root/.cache/restic
       - wordpress:/var/www/html
+      - wordpress-conf:/var/www/etc
       - flags:/var/run/bfflags
 
   mariadb:
@@ -60,28 +64,31 @@ services:
     image: wordpress:cli
     environment:
       VIRTUAL_HOST: ${HOSTNAME}
-      LETSENCRYPT_HOST: ${HOSTNAME}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPTEMAIL}
+      #LETSENCRYPT_HOST: ${HOSTNAME}
+      #LETSENCRYPT_EMAIL: ${LETSENCRYPTEMAIL}
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/mysql-password
+    entrypoint: [ "bash", "-c", "flagwait.sh loaded && /usr/local/bin/change-site-name.sh && /usr/local/bin/docker-entrypoint.sh wp shell"]
     secrets:
       - mysql-password
     networks:
       app:
     volumes:
+      - ./parts/change-site-name.sh:/usr/local/bin/change-site-name.sh
       - ./setup/flagwait.sh:/usr/local/bin/flagwait.sh
       - wordpress:/var/www/html
+      - wordpress-conf:/var/www/etc
       - flags:/var/run/bfflags
 
   wordpress:
-    image: wordpress
-    entrypoint: [ "bash", "-c", "flagwait.sh loaded && /usr/local/bin/docker-entrypoint.sh apache2-foreground"]
+    image: wordpress:php7.3-apache
+    entrypoint: [ "bash", "-c", "flagwait.sh setup && /usr/local/bin/docker-entrypoint.sh apache2-foreground"]
     environment:
       VIRTUAL_HOST: ${HOSTNAME}
-      LETSENCRYPT_HOST: ${HOSTNAME}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPTEMAIL}
+      #LETSENCRYPT_HOST: ${HOSTNAME}
+      #LETSENCRYPT_EMAIL: ${LETSENCRYPTEMAIL}
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_HOST: mariadb
@@ -94,6 +101,7 @@ services:
     volumes:
       - ./setup/flagwait.sh:/usr/local/bin/flagwait.sh
       - wordpress:/var/www/html
+      - wordpress-conf:/var/www/etc
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini 
       - flags:/var/run/bfflags
 
