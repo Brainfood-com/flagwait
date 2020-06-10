@@ -64,6 +64,8 @@ services:
     image: wordpress:cli
     environment:
       VIRTUAL_HOST: ${HOSTNAME}
+      TARGET_PROTOCOL:
+      FROM_SITES:
       #LETSENCRYPT_HOST: ${HOSTNAME}
       #LETSENCRYPT_EMAIL: ${LETSENCRYPTEMAIL}
       WORDPRESS_DB_USER: ${MYSQL_USER}
