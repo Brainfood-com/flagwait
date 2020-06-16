@@ -7,7 +7,7 @@ do
   FLAGCHECK=true
   for flag in $@;
   do
-    if [ ! -f "/var/run/bfflags/$flag" ];
+    if [ ! -f "$FLAG_DIR/$flag" ];
     then
       FLAGCHECK=false
     fi
